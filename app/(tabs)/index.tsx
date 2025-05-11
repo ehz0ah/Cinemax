@@ -6,6 +6,8 @@ import {
   Image,
   FlatList,
 } from "react-native";
+import { useRouter } from "expo-router";
+
 
 import { icons } from "@/constants/icons";
 import { images } from "@/constants/images";
@@ -14,6 +16,8 @@ import SearchBar from "@/components/SearchBar";
 
 
 export default function Index() {
+  const router = useRouter();
+
   return (
     <View className="flex-1 bg-primary">
       <Image
