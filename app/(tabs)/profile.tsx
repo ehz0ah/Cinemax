@@ -1,5 +1,5 @@
 // src/screens/Profile.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   SafeAreaView,
   View,
@@ -7,96 +7,57 @@ import {
   Alert,
   StyleSheet,
 } from 'react-native';
-import { Account, ID } from 'appwrite';
+import { Account } from 'appwrite';
 import { client } from '@/services/appwrite';
-
+import { AuthContext } from '@/auth/authcontext';
 import { AuthForms } from '@/auth/authform';
 import { EditProfileView } from '@/components/EditProfileView';
 
 const account = new Account(client);
 
-type User = { name?: string; email: string };
-
 const Profile: React.FC = () => {
-  const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<User | null>(null);
+  const { user, loading, login, signup, logout, refreshUser } = useContext(AuthContext);
+  const [saving, setSaving] = useState(false);
 
-  // ① On mount, check session
-  useEffect(() => {
-    account
-      .get()
-      .then(u => setUser({ email: u.email, name: u.name }))
-      .catch(() => setUser(null))
-      .finally(() => setLoading(false));
-  }, []);
-
-  // ② Handlers for AuthForms
-  const handleLogin = async (email: string, password: string) => {
-    setLoading(true);
-    try {
-      await account.createEmailPasswordSession(email, password);
-      const u = await account.get();
-      setUser({ email: u.email, name: u.name });
-    } catch (err: any) {
-      Alert.alert('Login failed', err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSignup = async (
-    name: string,
-    email: string,
-    password: string
-  ) => {
-    setLoading(true);
-    try {
-      // create with a display name
-      await account.create(ID.unique(), email, password, name);
-      // then immediately log them in
-      await handleLogin(email, password);
-    } catch (err: any) {
-      Alert.alert('Sign up failed', err.message);
-      setLoading(false);
-    }
-  };
-
-  // ③ Handlers for EditProfileView
   const handleSave = async (
     name: string,
+    currentPassword: string,
     newPassword: string,
     avatarUri?: string
   ) => {
-    setLoading(true);
+    setSaving(true);
     try {
-      await account.updateName(name);
-      if (newPassword) {
-        await account.updatePassword(newPassword, newPassword);
+      // 1) Update display name if changed
+      if (name !== user?.name) {
+        await account.updateName(name);
       }
-      // TODO: upload avatarUri to Storage & save to preferences
+
+      // 2) Update password if provided (requires current password)
+      if (newPassword) {
+        if (!currentPassword) {
+          Alert.alert('Error', 'Please enter your current password to change it.');
+          setSaving(false);
+          return;
+        }
+        await account.updatePassword(newPassword, currentPassword);
+        Alert.alert('Success', 'Password changed successfully.');
+      }
+
+      // 3) (Optional) Upload avatarUri to Storage & save to user preferences
+      //    TODO: implement avatar upload logic here
+
+      // 4) Refresh the context user so the UI shows updated name/avatar
+      await refreshUser();
+
       Alert.alert('Saved', 'Your profile has been updated.');
-      setUser(prev => prev && { ...prev, name });
     } catch (err: any) {
-      Alert.alert('Update failed', err.message);
+      Alert.alert('Update failed', err.message || 'An error occurred.');
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
-  const handleLogout = async () => {
-    setLoading(true);
-    try {
-      await account.deleteSession('current');
-      setUser(null);
-    } catch (err: any) {
-      Alert.alert('Logout failed', err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // ④ Render
-  if (loading) {
+  if (loading || saving) {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" color="#fff" />
@@ -111,11 +72,11 @@ const Profile: React.FC = () => {
           initialName={user.name}
           email={user.email}
           onSave={handleSave}
-          onLogout={handleLogout}
+          onLogout={logout}
         />
       ) : (
         <View style={styles.container}>
-          <AuthForms onLogin={handleLogin} onSignup={handleSignup} />
+          <AuthForms onLogin={login} onSignup={signup} />
         </View>
       )}
     </SafeAreaView>
@@ -125,11 +86,11 @@ const Profile: React.FC = () => {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: '#000',      // dark canvas
+    backgroundColor: '#000',
   },
   container: {
     flex: 1,
-    justifyContent: 'center',     // center the AuthForms card
+    justifyContent: 'center',
     paddingHorizontal: 16,
   },
   center: {

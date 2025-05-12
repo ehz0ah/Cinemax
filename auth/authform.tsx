@@ -1,44 +1,56 @@
-// src/components/AuthForms.tsx
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
-  View,
+  ActivityIndicator,
+  Alert,
   Text,
   TextInput,
   TouchableOpacity,
-  ActivityIndicator,
-} from 'react-native';
+  View,
+} from "react-native";
 
 type AuthFormsProps = {
-  onLogin: (email: string, password: string) => void;
-  onSignup: (name: string, email: string, password: string) => void;
+  onLogin: (email: string, password: string) => Promise<void>;
+  onSignup: (name: string, email: string, password: string) => Promise<void>;
 };
 
-export const AuthForms: React.FC<AuthFormsProps> = ({
-  onLogin,
-  onSignup,
-}) => {
+export const AuthForms: React.FC<AuthFormsProps> = ({ onLogin, onSignup }) => {
   const [isLogin, setIsLogin] = useState(true);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const handleSubmit = () => {
+  // inside AuthForms.tsx’s handleSubmit
+  const handleSubmit = async () => {
     setBusy(true);
-    if (isLogin) {
-      onLogin(email.trim(), password);
-    } else {
-      onSignup(name.trim(), email.trim(), password);
+
+    // if signing up, enforce at least 8 chars
+    if (!isLogin && password.length < 8) {
+      Alert.alert(
+        "Weak Password",
+        "Password must be at least 8 characters long."
+      );
+      setBusy(false);
+      return;
     }
-    // clear busy when promise settles
-    setBusy(false);
+
+    try {
+      if (isLogin) {
+        await onLogin(email.trim(), password);
+      } else {
+        await onSignup(name.trim(), email.trim(), password);
+      }
+    } catch (err: any) {
+      Alert.alert("Authentication Error", err.message);
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
-    <View className="bg-gray-900/90 p-8 rounded-2xl shadow-lg
-                     w-full max-w-sm mx-auto">
+    <View className="bg-gray-900/90 p-8 rounded-2xl shadow-lg w-full max-w-sm mx-auto">
       <Text className="text-3xl font-semibold text-white text-center mb-6">
-        {isLogin ? 'Welcome Back!' : 'Create Account'}
+        {isLogin ? "Welcome Back!" : "Create Account"}
       </Text>
 
       {!isLogin && (
@@ -47,8 +59,7 @@ export const AuthForms: React.FC<AuthFormsProps> = ({
           placeholderTextColor="#aaa"
           value={name}
           onChangeText={setName}
-          className="bg-gray-800 border border-gray-700 rounded-lg
-                     px-4 py-3 mb-4 text-white"
+          className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 mb-4 text-white"
         />
       )}
 
@@ -59,8 +70,7 @@ export const AuthForms: React.FC<AuthFormsProps> = ({
         onChangeText={setEmail}
         keyboardType="email-address"
         autoCapitalize="none"
-        className="bg-gray-800 border border-gray-700 rounded-lg
-                   px-4 py-3 mb-4 text-white"
+        className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 mb-4 text-white"
       />
 
       <TextInput
@@ -69,21 +79,19 @@ export const AuthForms: React.FC<AuthFormsProps> = ({
         value={password}
         onChangeText={setPassword}
         secureTextEntry
-        className="bg-gray-800 border border-gray-700 rounded-lg
-                   px-4 py-3 mb-6 text-white"
+        className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 mb-6 text-white"
       />
 
       <TouchableOpacity
         onPress={handleSubmit}
         disabled={busy}
-        className="bg-purple-600 rounded-lg py-3 mb-4 items-center
-                   shadow-md"
+        className="bg-purple-600 rounded-lg py-3 mb-4 items-center shadow-md"
       >
         {busy ? (
           <ActivityIndicator color="#fff" />
         ) : (
           <Text className="text-white font-semibold text-lg">
-            {isLogin ? 'Log In' : 'Sign Up'}
+            {isLogin ? "Log In" : "Sign Up"}
           </Text>
         )}
       </TouchableOpacity>
@@ -91,16 +99,16 @@ export const AuthForms: React.FC<AuthFormsProps> = ({
       <TouchableOpacity
         onPress={() => {
           setIsLogin(!isLogin);
-          setName('');
-          setEmail('');
-          setPassword('');
+          setName("");
+          setEmail("");
+          setPassword("");
         }}
         className="items-center"
       >
         <Text className="text-sm text-white">
           {isLogin
             ? "Don't have an account? Sign Up"
-            : 'Already have an account? Log In'}
+            : "Already have an account? Log In"}
         </Text>
       </TouchableOpacity>
     </View>

@@ -1,21 +1,25 @@
-// src/components/EditProfileView.tsx
-import React, { useState } from 'react';
+import { icons } from "@/constants/icons";
+import * as ImagePicker from "expo-image-picker";
+import React, { useState } from "react";
 import {
-  View,
+  Alert,
+  Image,
+  Platform,
   Text,
   TextInput,
-  Image,
   TouchableOpacity,
-  Platform,
-  Alert,
-} from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
-import { icons } from '@/constants/icons';
+  View,
+} from "react-native";
 
 type EditProfileViewProps = {
   initialName?: string;
   email: string;
-  onSave: (name: string, password: string, avatarUri?: string) => void;
+  onSave: (
+    name: string,
+    currentPassword: string,
+    newPassword: string,
+    avatarUri?: string
+  ) => void;
   onLogout: () => void;
 };
 
@@ -25,15 +29,20 @@ export const EditProfileView: React.FC<EditProfileViewProps> = ({
   onSave,
   onLogout,
 }) => {
-  const [name, setName] = useState(initialName || '');
-  const [password, setPassword] = useState('');
+  const [name, setName] = useState(initialName || "");
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
   const [avatarUri, setAvatarUri] = useState<string>();
 
   const pickImage = async () => {
-    if (Platform.OS !== 'web') {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permission denied', 'Allow photo access to change avatar');
+    if (Platform.OS !== "web") {
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert(
+          "Permission denied",
+          "Allow photo access to change avatar"
+        );
         return;
       }
     }
@@ -63,44 +72,56 @@ export const EditProfileView: React.FC<EditProfileViewProps> = ({
       </View>
 
       {/* Form */}
-      <View>
-        <View className="mb-10">
-          <Text className="text-gray-400 mb-2">Name</Text>
-          <TextInput
-            value={name}
-            onChangeText={setName}
-            placeholder="Your name"
-            placeholderTextColor="#666"
-            className="bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white"
-          />
-        </View>
+      <View className="mb-10">
+        <Text className="text-gray-400 mb-2">Name</Text>
+        <TextInput
+          value={name}
+          onChangeText={setName}
+          placeholder="Your name"
+          placeholderTextColor="#666"
+          className="bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white"
+        />
+      </View>
 
-        <View className="mb-10">
-          <Text className="text-gray-400 mb-2">Email (read-only)</Text>
-          <TextInput
-            value={email}
-            editable={false}
-            className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-gray-500"
-          />
-        </View>
+      <View className="mb-10">
+        <Text className="text-gray-400 mb-2">Email (Read-Only)</Text>
+        <TextInput
+          value={email}
+          editable={false}
+          className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-gray-500"
+        />
+      </View>
 
-        <View className="mb-6">
-          <Text className="text-gray-400 mb-2">New Password</Text>
-          <TextInput
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            placeholder="••••••••"
-            placeholderTextColor="#666"
-            className="bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white"
-          />
-        </View>
+      <View className="mb-6">
+        <Text className="text-gray-400 mb-2">Current Password</Text>
+        <TextInput
+          value={currentPassword}
+          onChangeText={setCurrentPassword}
+          secureTextEntry
+          placeholder="••••••••"
+          placeholderTextColor="#666"
+          className="bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white"
+        />
+      </View>
+
+      <View className="mb-6">
+        <Text className="text-gray-400 mb-2">New Password</Text>
+        <TextInput
+          value={newPassword}
+          onChangeText={setNewPassword}
+          secureTextEntry
+          placeholder="••••••••"
+          placeholderTextColor="#666"
+          className="bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white"
+        />
       </View>
 
       {/* Buttons */}
-      <View>
+      <View className="mt-4">
         <TouchableOpacity
-          onPress={() => onSave(name, password, avatarUri)}
+          onPress={() =>
+            onSave(name, currentPassword, newPassword, avatarUri)
+          }
           className="bg-purple-600 rounded-lg py-3 items-center shadow mb-4"
         >
           <Text className="text-white font-semibold text-lg">
