@@ -7,19 +7,15 @@ A React Native mobile application built with Expo Router for browsing, searching
 ## Table of Contents
 
 1. [Features](#features)
-2. [Demo](#demo)
-3. [Tech Stack](#tech-stack)
-4. [Architecture & Directory Structure](#architecture--directory-structure)
-5. [Getting Started](#getting-started)
+2. [Tech Stack](#tech-stack)
+3. [Architecture & Directory Structure](#architecture--directory-structure)
+4. [Getting Started](#getting-started)
 
    * [Prerequisites](#prerequisites)
    * [Installation](#installation)
    * [Environment Variables](#environment-variables)
    * [Running the App](#running-the-app)
-6. [Usage](#usage)
-7. [Folder Overview](#folder-overview)
-8. [Contributing](#contributing)
-9. [License](#license)
+5. [Usage](#usage)
 
 ---
 
@@ -30,12 +26,6 @@ A React Native mobile application built with Expo Router for browsing, searching
 * **Saved**: Save your favorite movies to view later (requires login).
 * **Profile**: Sign up, log in, edit profile (name, password, avatar), and log out.
 * **Appwrite Integration**: User authentication and database for saving favorites & search analytics.
-
----
-
-## Demo
-
-*Add screenshots or GIFs here once available.*
 
 ---
 
@@ -142,32 +132,3 @@ expo start
    * Log out when finished.
 
 ---
-
-## Folder Overview
-
-* **app/**: Entry point, navigators, and screen definitions.
-* **auth/**: Context and form for handling user authentication.
-* **components/**: Individual UI pieces (cards, search bar, profile views).
-* **services/**: API handlers (`api.ts`, `appwrite.ts`) and custom hooks (`useFetch.ts`).
-* **constants/**: Static references for assets.
-* **interfaces/**: TypeScript interfaces for type safety.
-
----
-
-## Contributing
-
-Contributions, issues, and feature requests are welcome!
-
-1. Fork the project
-2. Create a feature branch (`git checkout -b feature/YourFeature`)
-3. Commit your changes (`git commit -m 'Add some feature'`)
-4. Push to the branch (`git push origin feature/YourFeature`)
-5. Open a pull request
-
-Please ensure code quality and add relevant tests where applicable.
-
----
-
-## License
-
-Distributed under the MIT License. See `LICENSE` for more information.
