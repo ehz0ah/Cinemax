@@ -1,4 +1,4 @@
-**Cinemax**
+# **Cinemax**
 
 A React Native mobile application built with Expo Router for browsing, searching, and saving movies using the TMDB API and Appwrite for authentication and data storage.
 
